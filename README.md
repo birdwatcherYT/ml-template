@@ -14,6 +14,8 @@
         - test.csv
     - yamls/
         - exp/
+            - base.yaml
+            - exp0.yaml
         - config.yaml
     - tasks.py
     - src/
@@ -29,6 +31,9 @@ trainから学習後、submit.csvを作成する
 ```sh
 poetry run inv train -e exp0 -c comment
 ```
+
+- `-e`: 使用するパラメータファイルを指定
+- `-c`: フォルダにコメントを付与
 
 ### 保存したモデルの検証
 学習済みモデルを正しく読み取れるか試す

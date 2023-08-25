@@ -1,6 +1,6 @@
 cat_feat: []
 stats: ["mean", "median", "count", "min", "max", "std", "skew"]
-correct_cv: false
+correct_cv: true
 target: "target"
 
 n_splits: 5

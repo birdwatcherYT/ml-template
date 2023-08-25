@@ -22,6 +22,7 @@ from keras.layers import (
 from keras.models import Sequential
 from sklearn.preprocessing import StandardScaler
 
+from .preprocess import Preprocessor
 from .tool import get_logger
 from .trainer import CVModel, get_kfold, get_metric_func
 
@@ -107,12 +108,17 @@ class CV_NN(CVModel):
     def __init__(self, cfg):
         self.cfg: dict = cfg
         self.cfg_nn = cfg["nn"]
+        self.scaler: StandardScaler = None
+
         self.models: list[tf.keras.Model] = None
         self.scores: list[float] = None
         self.oof_pred: np.ndarray = None
-        self.scaler: StandardScaler = None
+        self.preps: list[Preprocessor] = None
 
-    def get_feature(self, df: pd.DataFrame) -> np.ndarray:
+    def get_feature(self, df: pd.DataFrame, prep: Preprocessor) -> np.ndarray:
+        _df = df.copy()
+        if prep is not None:
+            prep.target_encode(_df)
         # 連続変数
         X = self.scaler.transform(
             df[[c for c in self.cfg_nn["feat_col"] if c not in self.cfg["cat_feat"]]]
@@ -140,17 +146,26 @@ class CV_NN(CVModel):
             train[[c for c in self.cfg_nn["feat_col"] if c not in self.cfg["cat_feat"]]]
         )
 
-        X = self.get_feature(train)
-        y = train[self.cfg["target"]].values
-
         self.oof_pred = np.zeros(train.shape[0])
         self.models = []
         self.scores = []
+        self.preps = []
 
         metric = get_metric_func(self.cfg["metric"])
         for i, (train_index, valid_index) in enumerate(
             get_kfold(self.cfg, train, seed)
         ):
+            _train = train.copy()
+            prep = None
+            if self.cfg["correct_cv"]:
+                # target encをtrainでoverride
+                prep = Preprocessor(self.cfg)
+                prep.aggregate(_train.iloc[train_index])
+            self.preps.append(prep)
+
+            X = self.get_feature(_train, prep)
+            y = _train[self.cfg["target"]].values
+
             X_train = X[train_index]
             y_train = y[train_index]
             X_valid = X[valid_index]
@@ -191,8 +206,12 @@ class CV_NN(CVModel):
         )
 
     def predict_array(self, test: pd.DataFrame) -> np.ndarray:
-        X = self.get_feature(test)
-        return np.array([m.predict(X).flatten() for m in self.models]).T
+        return np.array(
+            [
+                m.predict(self.get_feature(test, prep)).flatten()
+                for m, prep in zip(self.models, self.preps)
+            ]
+        ).T
 
     def save(self, outdir: str):
         outpath = Path(outdir)
@@ -203,6 +222,8 @@ class CV_NN(CVModel):
             joblib.dump(self.scores, f, compress=3)
         with open(outpath / "oof_pred", "wb") as f:
             joblib.dump(self.oof_pred, f, compress=3)
+        with open(outpath / "preps", "wb") as f:
+            joblib.dump(self.preps, f, compress=3)
         for i, model in enumerate(self.models):
             path = outpath / f"nn_model{i}"
             path.mkdir(parents=True, exist_ok=True)
@@ -220,6 +241,8 @@ class CV_NN(CVModel):
             model.scores = joblib.load(f)
         with open(outpath / "oof_pred", "rb") as f:
             model.oof_pred = joblib.load(f)
+        with open(outpath / "preps", "rb") as f:
+            model.preps = joblib.load(f)
 
         model.models = []
         for i in range(len(model.scores)):

@@ -1,6 +1,7 @@
 defaults:
   - base
 
+# 必要部分だけ上書きする
 ensemble_num: 1
 cat_feat: ["cat"]
 

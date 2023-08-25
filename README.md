@@ -4,7 +4,7 @@
 - python3.9系
     - pyenvの3.9.13で検証済み
 - poetry
-    - pip install poetry
+    - `pip install poetry`
     - `poetry install`
 
 ## フォルダ構成

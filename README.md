@@ -1,4 +1,5 @@
 # ml-template
+機械学習コンペ用テンプレート
 
 ## 環境構築
 - python3.9系
@@ -6,6 +7,8 @@
 - poetry
     - `pip install poetry`
     - `poetry install`
+- pre-commit
+    - `poetry run pre-commit install`
 
 ## フォルダ構成
 - root

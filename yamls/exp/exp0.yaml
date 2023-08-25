@@ -1,0 +1,20 @@
+defaults:
+  - base
+
+ensemble_num: 1
+cat_feat: ["cat"]
+
+lgbm:
+  run: true
+  feat_col: ["age", "sex", "bmi", "bp", "s1", "s2", "s3", "s4", "s5", "s6"]
+  num_leaves: 8
+
+cb:
+  run: true
+  boosting_type: Plain
+  early_stopping: 10
+  feat_col: ["age", "sex", "bmi", "bp", "s1", "s2", "s3", "s4", "s5", "s6", "cat"]
+
+nn:
+  run: true
+  feat_col: ${exp.lgbm.feat_col}

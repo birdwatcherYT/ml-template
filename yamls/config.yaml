@@ -1,0 +1,15 @@
+defaults:
+  - _self_
+  - exp: exp@base
+  - override hydra/job_logging: none # hydraログ抑制
+
+save_path: ./model/YYYYMMDDHHMMSS_comment # invoke実行時に書き換える
+data_dir: ./data
+
+hydra:
+  # hydraログ抑制
+  output_subdir: null
+  job:
+    chdir: false
+  run:
+    dir: .

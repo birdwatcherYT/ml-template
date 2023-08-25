@@ -1,0 +1,48 @@
+cat_feat: []
+stats: ["mean", "median", "count", "min", "max", "std", "skew"]
+correct_cv: false
+target: "target"
+
+n_splits: 5
+ensemble_num: 1
+lower: 0
+metric: "rmse"
+
+lgbm:
+  run: false
+  objective: "rmse"
+  metric: ["rmse"]
+  feat_col: []
+  num_leaves: 16
+  learning_rate: 0.01
+  bagging_fraction: 0.9
+  bagging_freq: 1
+  feature_fraction: 0.9
+  early_stopping: 50
+  num_boost_round: 5000
+  seed_base: 1
+
+cb:
+  run: false
+  boosting_type: Ordered
+  feat_col: []
+  iterations: 5000
+  depth: 5
+  eval_metric: RMSE
+  loss_function: RMSE
+  l2_leaf_reg: 3
+  early_stopping: 50
+  learning_rate: 0.01
+  seed_base: 1
+
+nn:
+  run: false
+  feat_col: []
+  activation: "PReLU"
+  last_activation: linear
+  dropout: 0.2
+  batch_size: 64
+  patience: 15
+  epochs: 100
+  learning_rate: 0.001
+  seed_base: 1

@@ -5,8 +5,8 @@
 - python3.9系
     - pyenvの3.9.13で検証済み
 - poetry
-    - `poetry config virtualenvs.in-project true`
     - `pip install poetry`
+    - `poetry config virtualenvs.in-project true`
     - `poetry install`
 - pre-commit
     - `poetry run pre-commit install`

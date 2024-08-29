@@ -21,7 +21,7 @@ def train(c, exp="base", comment: str = "", args: str = ""):
 
     cmd = f"cp -r ./src {save_path}"
     logger.info(cmd)
-    subprocess.run(cmd, cwd=ROOT_DIR)
+    subprocess.run(cmd, shell=True, cwd=ROOT_DIR)
 
     cmd = f"poetry run python -m src.main save_path={save_path.relative_to(ROOT_DIR).as_posix()} exp={exp} {args}"
     logger.info(cmd)

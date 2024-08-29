@@ -12,6 +12,7 @@ from sklearn.metrics import (
     mean_absolute_percentage_error,
     mean_squared_error,
     mean_squared_log_error,
+    roc_auc_score,
 )
 from sklearn.model_selection import KFold
 
@@ -53,5 +54,7 @@ def get_metric_func(name) -> Callable[[np.ndarray, np.ndarray], float]:
         return f1_score
     if name == "log_loss":
         return log_loss
+    if name == "auc":
+        return roc_auc_score
 
     raise ValueError(f"no support metric {name}")

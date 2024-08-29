@@ -25,9 +25,12 @@ class CV_CB(CVModel):
     def get_feature(self, df: pd.DataFrame, prep: Preprocessor) -> pd.DataFrame:
         _df = df.copy()
         if prep is not None:
-            prep.target_encode(_df)
+            _df = prep.target_encode(_df)
         _df[self.cfg["cat_feat"]] = (
-            _df[self.cfg["cat_feat"]].fillna("nan").astype("category")
+            # catboostはnan埋めが必要
+            _df[self.cfg["cat_feat"]]
+            .fillna("nan")
+            .astype("category")
         )
         X = _df[self.cfg_cb["feat_col"]]
         return X
@@ -78,6 +81,7 @@ class CV_CB(CVModel):
                 weight=None,
             )
             model = catboost.CatBoostRegressor(
+                # model = catboost.CatBoostClassifier(
                 boosting_type=self.cfg_cb["boosting_type"],
                 iterations=self.cfg_cb["iterations"],
                 use_best_model=True,
@@ -98,6 +102,7 @@ class CV_CB(CVModel):
             logger.info(model.best_score_)
 
             self.oof_pred[valid_index] = model.predict(X_valid)
+            # self.oof_pred[valid_index] = model.predict_proba(X_valid)[:, 1]
             score = metric(y_valid, self.oof_pred[valid_index])
             logger.info(score)
             self.scores.append(score)

@@ -9,6 +9,10 @@
     - `poetry install`
 - pre-commit
     - `poetry run pre-commit install`
+    - 「.git/hooks/pre-commit: 行 5: $'\r': コマンドが見つかりません」
+        - .git/hooks/pre-commitの改行コードをLFに変える
+    - 「.git/hooks/pre-commit: 15 行: exec: C:\Users\ユーザー名\Downloads\ml-template\.venv\Scripts\python.exe: 見つかりません」
+        - \を/に変える
 
 ## フォルダ構成
 - root

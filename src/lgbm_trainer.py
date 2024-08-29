@@ -25,7 +25,8 @@ class CV_LGBM(CVModel):
     def get_feature(self, df: pd.DataFrame, prep: Preprocessor) -> pd.DataFrame:
         _df = df.copy()
         if prep is not None:
-            prep.target_encode(_df)
+            _df = prep.target_encode(_df)
+        # lightgbmはnan埋めしなくても動く
         _df[self.cfg["cat_feat"]] = _df[self.cfg["cat_feat"]].astype("category")
         X = _df[self.cfg_lgbm["feat_col"]]
         return X

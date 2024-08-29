@@ -45,14 +45,16 @@ class NNModel(tf.keras.Model):
         continuous_feat = [
             c for c in self.cfg_nn["feat_col"] if c not in self.cfg["cat_feat"]
         ]
-        cat_feat = [c for c in self.cfg_nn["feat_col"] if c in self.cfg["cat_feat"]]
+        cat_feat = [
+            f"{c}_le" for c in self.cfg_nn["feat_col"] if c in self.cfg["cat_feat"]
+        ]
         dropout = self.cfg_nn["dropout"]
 
         self.cat_embedding = {
             c: Sequential(
                 [
                     Input(shape=(1,)),
-                    Embedding(train[c].unique().shape[0], 16),
+                    Embedding(train[c].nunique(), 16),
                     Flatten(),
                     *self.dense_activate(8),
                     *self.dense_activate(4),
@@ -118,7 +120,7 @@ class CV_NN(CVModel):
     def get_feature(self, df: pd.DataFrame, prep: Preprocessor) -> np.ndarray:
         _df = df.copy()
         if prep is not None:
-            prep.target_encode(_df)
+            _df = prep.target_encode(_df)
         # 連続変数
         X = self.scaler.transform(
             df[[c for c in self.cfg_nn["feat_col"] if c not in self.cfg["cat_feat"]]]
@@ -186,6 +188,7 @@ class CV_NN(CVModel):
                 optimizer=tf.keras.optimizers.Nadam(
                     learning_rate=self.cfg_nn["learning_rate"]
                 ),
+                # metrics=[AUC(name="auc", curve="ROC")],
             )
             model.fit(
                 x=X_train,
